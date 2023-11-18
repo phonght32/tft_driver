@@ -25,6 +25,7 @@
 
 #include "err_code.h"
 #include "intf/intf.h"
+#include "fonts.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,6 +100,78 @@ err_code_t tft_driver_config(tft_driver_handle_t handle, tft_driver_cfg_t config
  *      - Others:           Fail.
  */
 err_code_t tft_driver_screen_refresh(tft_driver_handle_t handle);
+
+/**
+ * @brief   Fill screen with color.
+ *
+ * @param   handle Handle structure.
+ * @param 	color Color.
+ *
+ * @return
+ *      - ERR_CODE_SUCCESS: Success.
+ *      - Others:           Fail.
+ */
+err_code_t tft_driver_fill(tft_driver_handle_t handle, uint32_t color);
+
+/**
+ * @brief   Write character.
+ *
+ * @param   handle Handle structure.
+ * @param 	font_size Font size.
+ * @param 	chr Character.
+ * @param 	color Color.
+ *
+ * @return
+ *      - ERR_CODE_SUCCESS: Success.
+ *      - Others:           Fail.
+ */
+err_code_t tft_driver_write_char(tft_driver_handle_t handle,
+                                 font_size_t font_size,
+                                 uint8_t chr,
+                                 uint32_t color);
+
+/**
+ * @brief   Write string.
+ *
+ * @param   handle Handle structure.
+ * @param 	font_size Font size.
+ * @param 	str Pointer references to the data.
+ * @param 	color Color.
+ *
+ * @return
+ *      - ERR_CODE_SUCCESS: Success.
+ *      - Others:           Fail.
+ */
+err_code_t tft_driver_write_string(tft_driver_handle_t handle,
+                                   font_size_t font_size,
+                                   uint8_t *str,
+                                   uint32_t color);
+
+/**
+ * @brief   Set current position.
+ *
+ * @param   handle Handle structure.
+ * @param 	x Horizontal position.
+ * @param   y Vertical position.
+ *
+ * @return
+ *      - ERR_CODE_SUCCESS: Success.
+ *      - Others:           Fail.
+ */
+err_code_t tft_driver_set_position(tft_driver_handle_t handle, uint16_t x, uint16_t y);
+
+/**
+ * @brief   Get current position.
+ *
+ * @param   handle Handle structure.
+ * @param 	x Pointer references to the horizontal position.
+ * @param   y Pointer references to the vertical position.
+ *
+ * @return
+ *      - ERR_CODE_SUCCESS: Success.
+ *      - Others:           Fail.
+ */
+err_code_t periph_ilidriver_get_position(tft_driver_handle_t handle, uint16_t *x, uint16_t *y);
 
 /*
  * @brief   Get screen buffer.
