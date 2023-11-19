@@ -24,7 +24,7 @@
 #define __TFT_DRIVER_H__
 
 #include "err_code.h"
-#include "intf/intf.h"
+#include "intf/tft_driver_intf.h"
 #include "fonts.h"
 
 #ifdef __cplusplus

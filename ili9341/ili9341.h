@@ -24,7 +24,7 @@
 #define __TFT_DRIVER_ILI9341__
 
 #include "err_code.h"
-#include "intf/intf.h"
+#include "intf/tft_driver_intf.h"
 
 #ifdef __cplusplus
 extern "C" {
