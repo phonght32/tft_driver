@@ -60,6 +60,38 @@ static void write_pixel(tft_driver_handle_t handle, uint16_t x, uint16_t y, uint
 	p[2] = (color >> 0) & 0xFF;
 }
 
+static void write_line(tft_driver_handle_t handle, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint32_t color)
+{
+	int32_t deltaX = abs(x2 - x1);
+	int32_t deltaY = abs(y2 - y1);
+	int32_t signX = ((x1 < x2) ? 1 : -1);
+	int32_t signY = ((y1 < y2) ? 1 : -1);
+	int32_t error = deltaX - deltaY;
+	int32_t error2;
+
+	write_pixel(handle, x2, y2, color);
+
+	while ((x1 != x2) || (y1 != y2))
+	{
+		write_pixel(handle, x1, y1, color);
+
+		error2 = error * 2;
+		if (error2 > -deltaY) {
+			error -= deltaY;
+			x1 += signX;
+		} else {
+			/*nothing to do*/
+		}
+
+		if (error2 < deltaX) {
+			error += deltaX;
+			y1 += signY;
+		} else {
+			/*nothing to do*/
+		}
+	}
+}
+
 static void write_lines(tft_driver_handle_t handle,
                         uint16_t ypos,
                         uint16_t parallel_line,
@@ -270,6 +302,109 @@ err_code_t tft_driver_write_string(tft_driver_handle_t handle,
 	return ERR_CODE_SUCCESS;
 }
 
+err_code_t tft_driver_write_pixel(tft_driver_handle_t handle,
+                                  uint16_t x,
+                                  uint16_t y,
+                                  uint32_t color)
+{
+	/* Check if handle structure is NULL */
+	if (handle == NULL)
+	{
+		return ERR_CODE_NULL_PTR;
+	}
+
+	write_pixel(handle, x, y, color);
+
+	return ERR_CODE_SUCCESS;
+}
+
+err_code_t tft_driver_write_line(tft_driver_handle_t handle,
+                                 uint16_t x1,
+                                 uint16_t y1,
+                                 uint16_t x2,
+                                 uint16_t y2,
+                                 uint32_t color)
+{
+	/* Check if handle structure is NULL */
+	if (handle == NULL)
+	{
+		return ERR_CODE_NULL_PTR;
+	}
+
+	write_line(handle, x1, y1, x2, y2, color);
+
+	return ERR_CODE_SUCCESS;
+}
+
+err_code_t tft_driver_write_rectangle(tft_driver_handle_t handle,
+                                      uint16_t x_origin,
+                                      uint16_t y_origin,
+                                      uint16_t width,
+                                      uint16_t height,
+                                      uint32_t color)
+{
+	/* Check if handle structure is NULL */
+	if (handle == NULL)
+	{
+		return ERR_CODE_NULL_PTR;
+	}
+
+	write_line(handle, x_origin, y_origin, x_origin + width, y_origin, color);
+	write_line(handle, x_origin + width, y_origin, x_origin + width, y_origin + height, color);
+	write_line(handle, x_origin + width, y_origin + height, x_origin, y_origin + height, color);
+	write_line(handle, x_origin, y_origin + height, x_origin, y_origin, color);
+
+	return ERR_CODE_SUCCESS;
+}
+
+err_code_t tft_driver_write_circle(tft_driver_handle_t handle,
+                                   uint16_t x_origin,
+                                   uint16_t y_origin,
+                                   uint16_t radius,
+                                   uint32_t color)
+{
+	/* Check if handle structure is NULL */
+	if (handle == NULL)
+	{
+		return ERR_CODE_NULL_PTR;
+	}
+
+	int32_t x = -radius;
+	int32_t y = 0;
+	int32_t err = 2 - 2 * radius;
+	int32_t e2;
+
+	do {
+		write_pixel(handle, x_origin - x, y_origin + y, color);
+		write_pixel(handle, x_origin + x, y_origin + y, color);
+		write_pixel(handle, x_origin + x, y_origin - y, color);
+		write_pixel(handle, x_origin - x, y_origin - y, color);
+
+		e2 = err;
+		if (e2 <= y) {
+			y++;
+			err = err + (y * 2 + 1);
+			if (-x == y && e2 <= x) {
+				e2 = 0;
+			}
+			else {
+				/*nothing to do*/
+			}
+		} else {
+			/*nothing to do*/
+		}
+
+		if (e2 > x) {
+			x++;
+			err = err + (x * 2 + 1);
+		} else {
+			/*nothing to do*/
+		}
+	} while (x <= 0);
+
+	return ERR_CODE_SUCCESS;
+}
+
 err_code_t tft_driver_set_position(tft_driver_handle_t handle, uint16_t x, uint16_t y)
 {
 	/* Check if handle structure is NULL */
@@ -284,7 +419,7 @@ err_code_t tft_driver_set_position(tft_driver_handle_t handle, uint16_t x, uint1
 	return ERR_CODE_SUCCESS;
 }
 
-err_code_t periph_ilidriver_get_position(tft_driver_handle_t handle, uint16_t *x, uint16_t *y)
+err_code_t tft_driver_get_position(tft_driver_handle_t handle, uint16_t *x, uint16_t *y)
 {
 	/* Check if handle structure is NULL */
 	if (handle == NULL)
